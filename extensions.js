@@ -550,22 +550,22 @@ export const FeedbackExtension = {
           align-items: center;
         }
         .feedback-title {
-          font-size: 16px; /* Increased font size */
-          font-weight: bold; /* Match submit button font weight */
+          font-size: 16px;
+          font-weight: bold;
           margin-bottom: 12px;
           color: #333;
-          text-align: center; /* Center align text */
+          text-align: center;
         }
         .star-rating {
-          font-size: 24px; /* Increased star size */
+          font-size: 24px;
           color: #e0e0e0;
           margin-bottom: 12px;
-          justify-content: center; /* Center align stars */
+          justify-content: center;
           display: flex;
         }
         .star-rating .star {
           display: inline-block;
-          margin: 0 8px; /* Add spacing between stars */
+          margin: 0 8px;
         }
         .star-rating .star.active {
           color: #ffd700;
@@ -574,29 +574,25 @@ export const FeedbackExtension = {
           width: 100%;
           padding: 8px;
           margin: 8px 0;
-          border: 1px solid #e0e0e0; /* Set initial border color to light purple */
+          border: 1px solid #e0e0e0;
           border-radius: 4px;
           font-size: 14px;
           box-sizing: border-box;
-          resize: none; /* Remove scrollbar */
-          height: 60px; /* Set fixed height */
-          font-family: inherit; /* Inherit font from container */
-        }
-        textarea:hover {
-          border-color: #6B4EFF; /* Change border color on hover */
+          resize: none;
+          height: 60px;
+          font-family: inherit;
         }
         .submit-btn {
-          background-color: linear-gradient(135deg, #6B4EFF, #8A2BE2);
+          background-color: #6B4EFF;
           color: white;
           padding: 8px 16px;
           border: none;
           border-radius: 4px;
           cursor: pointer;
           font-size: 14px;
-          font-weight: bold; /* Match title font weight */
+          font-weight: bold;
           width: 100%;
           margin-top: 8px;
-          transition: background 0.3s ease;
         }
       </style>
       <div class="feedback-container">
@@ -654,7 +650,13 @@ export const FeedbackExtension = {
         comment: feedbackText.value.trim(),
       };
 
-      console.log('Feedback submitted:', feedback);
+      // This will capture and send the feedback (rating and comment) to Voiceflow's context
+      window.voiceflow.chat.updateContext({
+        variables: {
+          feedback_rating: selectedRating,  // Sending rating
+          feedback_comment: feedback.comment // Sending comment
+        },
+      });
 
       window.voiceflow.chat.interact({
         type: 'complete',
