@@ -550,49 +550,56 @@ export const FeedbackExtension = {
           align-items: center;
         }
         .feedback-title {
-          font-size: 16px;
+          font-size: 18px;
           font-weight: bold;
-          margin-bottom: 12px;
+          margin-bottom: 16px;
           color: #333;
           text-align: center;
         }
         .star-rating {
-          font-size: 24px;
+          font-size: 32px;
           color: #e0e0e0;
-          margin-bottom: 12px;
+          margin-bottom: 16px;
           justify-content: center;
           display: flex;
         }
         .star-rating .star {
           display: inline-block;
           margin: 0 8px;
+          cursor: pointer;
+          user-select: none;
         }
         .star-rating .star.active {
           color: #ffd700;
         }
         textarea {
           width: 100%;
-          padding: 8px;
+          padding: 12px;
           margin: 8px 0;
           border: 1px solid #e0e0e0;
-          border-radius: 4px;
+          border-radius: 10px;
           font-size: 14px;
           box-sizing: border-box;
           resize: none;
-          height: 60px;
+          height: 80px;
           font-family: inherit;
         }
         .submit-btn {
-          background-color: #6B4EFF;
+          background: linear-gradient(135deg, #8e2de2, #4a00e0);
           color: white;
-          padding: 8px 16px;
+          padding: 12px 24px;
           border: none;
-          border-radius: 4px;
+          border-radius: 20px;
           cursor: pointer;
-          font-size: 14px;
+          font-size: 16px;
           font-weight: bold;
           width: 100%;
-          margin-top: 8px;
+          margin-top: 16px;
+          transition: all 0.3s ease;
+        }
+        .submit-btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 8px rgba(74, 0, 224, 0.3);
         }
       </style>
       <div class="feedback-container">
@@ -605,7 +612,7 @@ export const FeedbackExtension = {
           <span class="star" data-value="5">★</span>
         </div>
         <textarea id="feedbackText" placeholder="Share your experience with us..."></textarea>
-        <button class="submit-btn" id="submitFeedback">Submit Feedback</button>
+        <button class="submit-btn" id="submitFeedback">Submit</button>
       </div>
     `;
 
@@ -629,16 +636,6 @@ export const FeedbackExtension = {
       }
     });
 
-    starRating.addEventListener('mouseover', (event) => {
-      if (event.target.classList.contains('star')) {
-        updateStars(parseInt(event.target.dataset.value));
-      }
-    });
-
-    starRating.addEventListener('mouseout', () => {
-      updateStars(selectedRating);
-    });
-
     submitButton.addEventListener('click', () => {
       if (selectedRating === 0) {
         alert('Please select a rating before submitting.');
@@ -653,8 +650,8 @@ export const FeedbackExtension = {
       // This will capture and send the feedback (rating and comment) to Voiceflow's context
       window.voiceflow.chat.updateContext({
         variables: {
-          feedback_rating: selectedRating,  // Sending rating
-          feedback_comment: feedback.comment // Sending comment
+          feedback_rating: selectedRating,
+          feedback_comment: feedback.comment
         },
       });
 
@@ -663,7 +660,7 @@ export const FeedbackExtension = {
         payload: feedback,
       });
 
-      feedbackContainer.innerHTML = '<p>Thank you for your feedback!</p>';
+      feedbackContainer.innerHTML = '<p style="text-align: center; font-size: 18px;">Thank you for your feedback!</p>';
     });
 
     element.appendChild(feedbackContainer);
