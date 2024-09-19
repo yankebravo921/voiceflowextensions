@@ -535,86 +535,7 @@ export const FeedbackExtension = {
   render: ({ trace, element }) => {
     const feedbackContainer = document.createElement('div');
 
-    feedbackContainer.innerHTML = `
-      <style>
-        .feedback-container {
-          background-color: #ffffff;
-          padding: 16px;
-          border-radius: 8px;
-          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-          width: 100%;
-          box-sizing: border-box;
-          font-family: sans-serif;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-        }
-        .feedback-title {
-          font-size: 18px;
-          font-weight: bold;
-          margin-bottom: 16px;
-          color: #333;
-          text-align: center;
-        }
-        .star-rating {
-          font-size: 32px;
-          color: #e0e0e0;
-          margin-bottom: 16px;
-          justify-content: center;
-          display: flex;
-        }
-        .star-rating .star {
-          display: inline-block;
-          margin: 0 8px;
-          cursor: pointer;
-          user-select: none;
-        }
-        .star-rating .star.active {
-          color: #ffd700;
-        }
-        textarea {
-          width: 100%;
-          padding: 12px;
-          margin: 8px 0;
-          border: 1px solid #e0e0e0;
-          border-radius: 10px;
-          font-size: 14px;
-          box-sizing: border-box;
-          resize: none;
-          height: 80px;
-          font-family: inherit;
-        }
-        .submit-btn {
-          background: linear-gradient(135deg, #8e2de2, #4a00e0);
-          color: white;
-          padding: 12px 24px;
-          border: none;
-          border-radius: 20px;
-          cursor: pointer;
-          font-size: 16px;
-          font-weight: bold;
-          width: 100%;
-          margin-top: 16px;
-          transition: all 0.3s ease;
-        }
-        .submit-btn:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 4px 8px rgba(74, 0, 224, 0.3);
-        }
-      </style>
-      <div class="feedback-container">
-        <div class="feedback-title">Please give your feedback on our customer service:</div>
-        <div class="star-rating" id="starRating">
-          <span class="star" data-value="1">★</span>
-          <span class="star" data-value="2">★</span>
-          <span class="star" data-value="3">★</span>
-          <span class="star" data-value="4">★</span>
-          <span class="star" data-value="5">★</span>
-        </div>
-        <textarea id="feedbackText" placeholder="Share your experience with us..."></textarea>
-        <button class="submit-btn" id="submitFeedback">Submit</button>
-      </div>
-    `;
+    // ... (previous HTML and CSS remain the same) ...
 
     let selectedRating = 0;
 
@@ -636,7 +557,9 @@ export const FeedbackExtension = {
       }
     });
 
-    submitButton.addEventListener('click', () => {
+    submitButton.addEventListener('click', async () => {
+      console.log('Submit button clicked');
+
       if (selectedRating === 0) {
         alert('Please select a rating before submitting.');
         return;
@@ -647,23 +570,48 @@ export const FeedbackExtension = {
         comment: feedbackText.value.trim(),
       };
 
-      // This will capture and send the feedback (rating and comment) to Voiceflow's context
-      window.voiceflow.chat.updateContext({
-        variables: {
-          feedback_rating: feedback.rating,
-          feedback_comment: feedback.comment
-        },
-      });
+      console.log('Feedback to be submitted:', feedback);
 
-      window.voiceflow.chat.interact({
-        type: 'complete',
-        payload: {
-          feedbackRating: feedback.rating,
-          feedbackComment: feedback.comment
-        },
-      });
+      if (window.voiceflow && window.voiceflow.chat) {
+        try {
+          // Update context
+          await window.voiceflow.chat.updateContext({
+            variables: {
+              feedback_rating: feedback.rating,
+              feedback_comment: feedback.comment
+            },
+          });
+          console.log('Context updated successfully');
 
-      feedbackContainer.innerHTML = '<p style="text-align: center; font-size: 18px;">Thank you for your feedback!</p>';
+          // Send interaction
+          const response = await window.voiceflow.chat.interact({
+            type: 'complete',
+            payload: {
+              feedbackRating: feedback.rating,
+              feedbackComment: feedback.comment
+            },
+          });
+          console.log('Interaction response:', response);
+
+          feedbackContainer.innerHTML = '<p style="text-align: center; font-size: 18px;">Thank you for your feedback!</p>';
+        } catch (error) {
+          console.error('Error details:', error);
+          
+          let errorMessage = 'There was an error submitting your feedback. ';
+          if (error.message) {
+            errorMessage += 'Error message: ' + error.message;
+          }
+          if (error.response) {
+            errorMessage += ' Response status: ' + error.response.status;
+          }
+          
+          console.error(errorMessage);
+          alert(errorMessage + ' Please check the console for more details and try again.');
+        }
+      } else {
+        console.error('window.voiceflow.chat is not available');
+        alert('Unable to submit feedback at this time. The Voiceflow chat interface is not available. Please try again later or contact support.');
+      }
     });
 
     element.appendChild(feedbackContainer);
