@@ -650,14 +650,17 @@ export const FeedbackExtension = {
       // This will capture and send the feedback (rating and comment) to Voiceflow's context
       window.voiceflow.chat.updateContext({
         variables: {
-          feedback_rating: selectedRating,
+          feedback_rating: feedback.rating,
           feedback_comment: feedback.comment
         },
       });
 
       window.voiceflow.chat.interact({
         type: 'complete',
-        payload: feedback,
+        payload: {
+          feedbackRating: feedback.rating,
+          feedbackComment: feedback.comment
+        },
       });
 
       feedbackContainer.innerHTML = '<p style="text-align: center; font-size: 18px;">Thank you for your feedback!</p>';
