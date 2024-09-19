@@ -527,6 +527,152 @@ export const ConfettiExtension = {
   },
 }
 
+export const FeedbackExtension = {
+  name: 'Feedback',
+  type: 'response',
+  match: ({ trace }) =>
+    trace.type === 'ext_feedback' || trace.payload.name === 'ext_feedback',
+  render: ({ trace, element }) => {
+    const feedbackContainer = document.createElement('form');
+
+    feedbackContainer.innerHTML = `
+      <style>
+        form {
+          background-color: white;
+          padding: 20px;
+          border-radius: 8px;
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+          max-width: 300px;
+          margin: 0 auto;
+        }
+        .feedback-title {
+          font-size: 18px;
+          font-weight: bold;
+          margin-bottom: 16px;
+          color: #333;
+          text-align: center;
+        }
+        .star-rating {
+          font-size: 32px;
+          color: #e0e0e0;
+          margin-bottom: 16px;
+          justify-content: center;
+          display: flex;
+        }
+        .star-rating .star {
+          display: inline-block;
+          margin: 0 8px;
+          cursor: pointer;
+          user-select: none;
+        }
+        .star-rating .star.active {
+          color: #ffd700;
+        }
+        textarea {
+          width: 100%;
+          padding: 12px;
+          margin: 8px 0;
+          border: 1px solid #e0e0e0;
+          border-radius: 10px;
+          font-size: 14px;
+          box-sizing: border-box;
+          resize: none;
+          height: 80px;
+          font-family: inherit;
+        }
+        .submit-btn {
+          background: linear-gradient(135deg, #8A2BE2, #6B4EFF);
+          color: white;
+          padding: 10px;
+          border: none;
+          border-radius: 20px;
+          width: 100%;
+          cursor: pointer;
+          font-size: 16px;
+          transition: opacity 0.3s;
+        }
+        .submit-btn:hover {
+          opacity: 0.9;
+        }
+      </style>
+
+      <div class="feedback-title">Please give your feedback:</div>
+      <div class="star-rating" id="starRating">
+        <span class="star" data-value="1">★</span>
+        <span class="star" data-value="2">★</span>
+        <span class="star" data-value="3">★</span>
+        <span class="star" data-value="4">★</span>
+        <span class="star" data-value="5">★</span>
+      </div>
+      <textarea id="feedbackText" placeholder="Share your experience..."></textarea>
+      <button type="submit" class="submit-btn">Submit</button>
+    `;
+
+    let selectedRating = 0;
+    const starRating = feedbackContainer.querySelector('#starRating');
+    const stars = starRating.querySelectorAll('.star');
+    const feedbackText = feedbackContainer.querySelector('#feedbackText');
+
+    function updateStars(rating) {
+      stars.forEach((star, index) => {
+        star.classList.toggle('active', index < rating);
+      });
+    }
+
+    starRating.addEventListener('click', (event) => {
+      if (event.target.classList.contains('star')) {
+        selectedRating = parseInt(event.target.dataset.value);
+        updateStars(selectedRating);
+      }
+    });
+
+    feedbackContainer.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      if (selectedRating === 0) {
+        alert('Please select a rating before submitting.');
+        return;
+      }
+
+      const feedback = {
+        feedbackRating: selectedRating,
+        feedbackComment: feedbackText.value.trim(),
+      };
+
+      console.log('Submitting feedback:', feedback); // Debugging log
+
+      try {
+        await window.voiceflow.chat.interact({
+          type: 'complete',
+          payload: feedback,
+        });
+
+        feedbackContainer.innerHTML = `
+  <div style="
+    text-align: center; 
+    font-size: 16px; 
+    padding: 10px; 
+    max-width: 200px; 
+    margin: 0 auto; 
+    background-color: #f9f9f9; 
+    border-radius: 8px; 
+    font-weight: bold;
+  ">
+    Thank you for your feedback! 😊
+  </div>
+`;
+
+
+
+      } catch (error) {
+        console.error('Error during feedback submission:', error); // Debugging log
+        alert('An error occurred while submitting your feedback. Please try again.');
+      }
+    });
+
+    element.appendChild(feedbackContainer);
+  },
+}
 
 export const MatrixEffectExtension = {
   name: 'MatrixEffect',
