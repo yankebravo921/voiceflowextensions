@@ -13,16 +13,7 @@
       top: 0;
       left: 0;
     }
-    #confetti-canvas {
-      position: fixed;
-      z-index: 999;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      pointer-events: none;
-    }
-    #matrix-canvas {
+    #confetti-canvas, #character-canvas {
       position: fixed;
       z-index: 999;
       top: 0;
@@ -35,7 +26,7 @@
 </head>
 <body>
   <canvas id="confetti-canvas"></canvas>
-  <canvas id="matrix-canvas"></canvas>
+  <canvas id="character-canvas"></canvas>
   <div id="flat-chat"></div>
   <div id="voiceflow-chat-frame"></div>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
@@ -50,6 +41,7 @@
       KBUploadExtension,
       DateExtension,
       ConfettiExtension,
+      ThankYouCharacterExtension, // Import the new extension
       MatrixEffectExtension,
       MultiSelectExtension,
       DateTimeExtension,
@@ -84,6 +76,7 @@
               KBUploadExtension,
               DateExtension,
               ConfettiExtension,
+              ThankYouCharacterExtension, // Register the new extension
               MatrixEffectExtension,
               MultiSelectExtension,
               DateTimeExtension,

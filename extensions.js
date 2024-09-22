@@ -1151,3 +1151,70 @@ export const MenuExtension = {
     element.appendChild(menuContainer);
   },
 }
+
+export const ThankYouCharacterExtension = {
+  name: 'ThankYouCharacter',
+  type: 'effect',
+  match: ({ trace }) =>
+    trace.type === 'ext_thank_you_character' || trace.payload.name === 'ext_thank_you_character',
+  effect: ({ trace }) => {
+    const canvas = document.querySelector('#character-canvas');
+    const ctx = canvas.getContext('2d');
+
+    const drawCharacter = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas before drawing
+
+      // Draw character (example, a simple round face)
+      ctx.beginPath();
+      ctx.arc(150, 150, 50, 0, Math.PI * 2, true); // Face
+      ctx.fillStyle = '#FFD700'; // Gold color for face
+      ctx.fill();
+      ctx.stroke();
+
+      // Eyes
+      ctx.beginPath();
+      ctx.arc(130, 140, 8, 0, Math.PI * 2, true); // Left eye
+      ctx.arc(170, 140, 8, 0, Math.PI * 2, true); // Right eye
+      ctx.fillStyle = '#000'; // Black eyes
+      ctx.fill();
+
+      // Smile
+      ctx.beginPath();
+      ctx.arc(150, 160, 20, 0, Math.PI, false); // Smile (semi-circle)
+      ctx.stroke();
+    };
+
+    const drawSpeechBubble = () => {
+      // Draw a simple speech bubble
+      ctx.beginPath();
+      ctx.rect(80, 50, 140, 50); // Bubble box
+      ctx.fillStyle = '#fff'; // White background
+      ctx.fill();
+      ctx.stroke();
+
+      // Draw bubble text
+      ctx.font = '20px Arial';
+      ctx.fillStyle = '#000'; // Black text
+      ctx.fillText('Thanks!', 100, 80); // Text inside bubble
+    };
+
+    drawCharacter();
+    drawSpeechBubble();
+
+    // Confetti effect
+    const confettiCanvas = document.querySelector('#confetti-canvas');
+    var myConfetti = confetti.create(confettiCanvas, {
+      resize: true,
+      useWorker: true,
+    });
+    myConfetti({
+      particleCount: 200,
+      spread: 160,
+    });
+
+    // Remove character after 3 seconds
+    setTimeout(() => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
+    }, 3000);
+  },
+}
