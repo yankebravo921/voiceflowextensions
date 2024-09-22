@@ -1,7 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chat Widget | Extensions Demo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <style>
     body {
       background-color: #f9f9f9;
@@ -13,23 +16,22 @@
       top: 0;
       left: 0;
     }
-    #confetti-canvas, #character-canvas {
+    #character-canvas, #confetti-canvas {
       position: fixed;
-      z-index: 999;
       top: 0;
       left: 0;
       width: 100vw;
       height: 100vh;
       pointer-events: none;
+      z-index: 999;
     }
   </style>
 </head>
 <body>
+  <canvas id="character-canvas" width="400" height="400"></canvas>
   <canvas id="confetti-canvas"></canvas>
-  <canvas id="character-canvas"></canvas>
   <div id="flat-chat"></div>
   <div id="voiceflow-chat-frame"></div>
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
   <script type="module">
     import {
       DisableInputExtension,
@@ -41,7 +43,7 @@
       KBUploadExtension,
       DateExtension,
       ConfettiExtension,
-      ThankYouCharacterExtension, // Import the new extension
+      ThankYouCharacterExtension,
       MatrixEffectExtension,
       MultiSelectExtension,
       DateTimeExtension,
@@ -76,7 +78,7 @@
               KBUploadExtension,
               DateExtension,
               ConfettiExtension,
-              ThankYouCharacterExtension, // Register the new extension
+              ThankYouCharacterExtension,
               MatrixEffectExtension,
               MultiSelectExtension,
               DateTimeExtension,

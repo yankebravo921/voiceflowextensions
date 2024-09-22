@@ -1161,60 +1161,54 @@ export const ThankYouCharacterExtension = {
     const canvas = document.querySelector('#character-canvas');
     const ctx = canvas.getContext('2d');
 
-    const drawCharacter = () => {
+    const sprite = new Image();
+    sprite.src = 'thank_you_character_sprite.png.png.png'; // Use a pixel sprite sheet
+
+    const drawCharacter = (frame) => {
       ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas before drawing
+      const spriteWidth = 64; // Width of a single frame in your sprite sheet
+      const spriteHeight = 64; // Height of a single frame
 
-      // Draw character (example, a simple round face)
-      ctx.beginPath();
-      ctx.arc(150, 150, 50, 0, Math.PI * 2, true); // Face
-      ctx.fillStyle = '#FFD700'; // Gold color for face
-      ctx.fill();
-      ctx.stroke();
-
-      // Eyes
-      ctx.beginPath();
-      ctx.arc(130, 140, 8, 0, Math.PI * 2, true); // Left eye
-      ctx.arc(170, 140, 8, 0, Math.PI * 2, true); // Right eye
-      ctx.fillStyle = '#000'; // Black eyes
-      ctx.fill();
-
-      // Smile
-      ctx.beginPath();
-      ctx.arc(150, 160, 20, 0, Math.PI, false); // Smile (semi-circle)
-      ctx.stroke();
+      // Draw character at different positions based on the frame number to animate
+      ctx.drawImage(sprite, frame * spriteWidth, 0, spriteWidth, spriteHeight, 100, 150, 64, 64);
     };
 
     const drawSpeechBubble = () => {
-      // Draw a simple speech bubble
-      ctx.beginPath();
-      ctx.rect(80, 50, 140, 50); // Bubble box
-      ctx.fillStyle = '#fff'; // White background
-      ctx.fill();
-      ctx.stroke();
-
-      // Draw bubble text
-      ctx.font = '20px Arial';
-      ctx.fillStyle = '#000'; // Black text
-      ctx.fillText('Thanks!', 100, 80); // Text inside bubble
+      // Draw a simple speech bubble with pixel font
+      ctx.font = '20px "Press Start 2P"'; // Pixelated font from Google Fonts
+      ctx.fillStyle = '#fff'; // White background for text
+      ctx.fillText('Thank You!', 80, 100); // Display the message above the character
     };
 
-    drawCharacter();
-    drawSpeechBubble();
+    // Animation loop
+    let frame = 0;
+    const animateCharacter = () => {
+      frame = (frame + 1) % 4; // Cycle through 4 frames for a simple animation
+      drawCharacter(frame);
+    };
 
-    // Confetti effect
-    const confettiCanvas = document.querySelector('#confetti-canvas');
-    var myConfetti = confetti.create(confettiCanvas, {
-      resize: true,
-      useWorker: true,
-    });
-    myConfetti({
-      particleCount: 200,
-      spread: 160,
-    });
+    sprite.onload = () => {
+      // Start the animation
+      const animationInterval = setInterval(animateCharacter, 200); // Animate every 200ms
 
-    // Remove character after 3 seconds
-    setTimeout(() => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
-    }, 3000);
+      drawSpeechBubble();
+
+      // Confetti effect
+      const confettiCanvas = document.querySelector('#confetti-canvas');
+      var myConfetti = confetti.create(confettiCanvas, {
+        resize: true,
+        useWorker: true,
+      });
+      myConfetti({
+        particleCount: 200,
+        spread: 160,
+      });
+
+      // Stop animation and clear canvas after 3 seconds
+      setTimeout(() => {
+        clearInterval(animationInterval);
+        ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
+      }, 3000);
+    };
   },
 }
