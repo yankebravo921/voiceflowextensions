@@ -974,32 +974,21 @@ export const DateTimeExtension = {
           font-size: 0.8em;
           color: #888;
         }
-        input[type="date"]::-webkit-calendar-picker-indicator,
-        input[type="time"]::-webkit-calendar-picker-indicator {
-          border: none;
-          background: transparent;
-          border-bottom: 0.5px solid rgba(0, 0, 0, 0.1);
-          outline: none;
-          color: transparent;
-          cursor: pointer;
-          position: absolute;
-          padding: 6px;
-          font: normal 8px sans-serif;
-        }
         .meeting input {
           background: transparent;
           border: none;
           padding: 2px;
-          border-bottom: 0.5px solid rgba(255, 0, 0, 0.5); /* Red color */
+          border-bottom: 0.5px solid rgba(255, 0, 0, 0.5);
           font: normal 14px sans-serif;
           outline: none;
           margin: 5px 0;
+          width: 100%;
         }
         .meeting input:focus {
           outline: none;
         }
         .submit {
-          background: linear-gradient(to right, #e12e2e, #f12e2e); /* Red gradient */
+          background: linear-gradient(to right, #e12e2e, #f12e2e);
           border: none;
           color: white;
           padding: 10px;
@@ -1009,14 +998,14 @@ export const DateTimeExtension = {
           opacity: 0.3;
         }
         .submit:enabled {
-          opacity: 1; /* Make the button fully opaque when it's enabled */
+          opacity: 1;
         }
       </style>
-      <label for="date">Select your date</label><br>
+      <label for="meeting-date">Select your date</label><br>
       <div class="meeting">
-        <input type="date" id="meeting-date" name="meeting-date" value="" min="${minDateString}" max="${maxDateString}" />
+        <input type="text" id="meeting-date" name="meeting-date" placeholder="YYYY-MM-DD" />
       </div>
-      <label for="time">Select your time</label><br>
+      <label for="meeting-time">Select your time</label><br>
       <div class="meeting">
         <input type="time" id="meeting-time" name="meeting-time" step="900" value="00:00" />
       </div><br>
@@ -1027,9 +1016,18 @@ export const DateTimeExtension = {
     const dateInput = formContainer.querySelector('#meeting-date')
     const timeInput = formContainer.querySelector('#meeting-time')
 
-    // Enable submit button only when both date and time are selected
+    // Function to validate date
+    function validateDate(input) {
+      const dateRegex = /^\d{4}-\d{2}-\d{2}$/
+      if (!dateRegex.test(input.value)) return false
+      
+      const date = new Date(input.value)
+      return date >= new Date(minDateString) && date <= new Date(maxDateString)
+    }
+
+    // Enable submit button only when both date and time are selected and valid
     function updateSubmitButton() {
-      if (dateInput.value && timeInput.value) {
+      if (validateDate(dateInput) && timeInput.value) {
         submitButton.disabled = false
       } else {
         submitButton.disabled = true
@@ -1058,6 +1056,19 @@ export const DateTimeExtension = {
     })
 
     element.appendChild(formContainer)
+
+    // Load flatpickr for cross-platform date picking
+    const script = document.createElement('script')
+    script.src = 'https://cdn.jsdelivr.net/npm/flatpickr'
+    script.onload = function() {
+      flatpickr(dateInput, {
+        dateFormat: "Y-m-d",
+        minDate: minDateString,
+        maxDate: maxDateString,
+        onChange: updateSubmitButton
+      })
+    }
+    document.head.appendChild(script)
   },
 }
 
