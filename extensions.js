@@ -427,70 +427,73 @@ export const DateExtension = {
     let maxDateString = maxDate.toISOString().slice(0, 10)
 
     formContainer.innerHTML = `
-          <style>
-            label {
-              font-size: 0.8em;
-              color: #888;
-            }
-            input[type="date"]::-webkit-calendar-picker-indicator {
-                border: none;
-                background: transparent;
-                border-bottom: 0.5px solid rgba(0, 0, 0, 0.1);
-                bottom: 0;
-                outline: none;
-                color: transparent;
-                cursor: pointer;
-                height: auto;
-                left: 0;
-                position: absolute;
-                right: 0;
-                top: 0;
-                width: auto;
-                padding:6px;
-                font: normal 8px sans-serif;
-            }
-            .meeting input{
-              background: transparent;
-              border: none;
-              padding: 2px;
-              border-bottom: 0.5px solid rgba(255, 0, 0, 0.5); /* Red color */
-              font: normal 14px sans-serif;
-              outline:none;
-              margin: 5px 0;
-              &:focus{outline:none;}
-            }
-            .invalid {
-              border-color: red;
-            }
-            .submit {
-              background: linear-gradient(to right, #e12e2e, #f12e2e ); /* Red gradient */
-              border: none;
-              color: white;
-              padding: 10px;
-              border-radius: 5px;
-              width: 100%;
-              cursor: pointer;
-              opacity: 0.3;
-            }
-            .submit:enabled {
-              opacity: 1; /* Make the button fully opaque when it's enabled */
-            }
-          </style>
-          <label for="date">Select your date</label><br>
-          <div class="meeting"><input type="date" id="meeting" name="meeting" value="" min="${minDateString}" max="${maxDateString}" /></div><br>
-          <input type="submit" id="submit" class="submit" value="Submit" disabled="disabled">
-          `
+      <style>
+        label {
+          font-size: 0.8em;
+          color: #888;
+        }
+        .meeting input {
+          background: transparent;
+          border: none;
+          padding: 2px;
+          border-bottom: 0.5px solid rgba(255, 0, 0, 0.5);
+          font: normal 14px sans-serif;
+          outline: none;
+          margin: 5px 0;
+        }
+        .meeting input:focus {
+          outline: none;
+        }
+        .invalid {
+          border-color: red;
+        }
+        .submit {
+          background: linear-gradient(to right, #e12e2e, #f12e2e);
+          border: none;
+          color: white;
+          padding: 10px;
+          border-radius: 5px;
+          width: 100%;
+          cursor: pointer;
+          opacity: 0.3;
+        }
+        .submit:enabled {
+          opacity: 1;
+        }
+      </style>
+      <label for="date">Select your date</label><br>
+      <div class="meeting">
+        <input type="text" id="meeting" name="meeting" placeholder="YYYY-MM-DD" pattern="\\d{4}-\\d{2}-\\d{2}" required />
+      </div><br>
+      <input type="submit" id="submit" class="submit" value="Submit" disabled="disabled">
+    `
 
     const submitButton = formContainer.querySelector('#submit')
     const dateInput = formContainer.querySelector('#meeting')
 
+    // Set min and max attributes
+    dateInput.setAttribute('min', minDateString)
+    dateInput.setAttribute('max', maxDateString)
+
+    // Function to validate date
+    function validateDate(input) {
+      const dateRegex = /^\d{4}-\d{2}-\d{2}$/
+      if (!dateRegex.test(input.value)) return false
+      
+      const date = new Date(input.value)
+      return date >= new Date(input.min) && date <= new Date(input.max)
+    }
+
     dateInput.addEventListener('input', function () {
-      if (this.value) {
+      if (validateDate(this)) {
         submitButton.disabled = false
+        this.classList.remove('invalid')
       } else {
         submitButton.disabled = true
+        this.classList.add('invalid')
       }
     })
+
     formContainer.addEventListener('submit', function (event) {
       event.preventDefault()
 
@@ -504,7 +507,24 @@ export const DateExtension = {
         payload: { date: date },
       })
     })
+
     element.appendChild(formContainer)
+
+    // If native date input is supported, use it
+    if (dateInput.type === 'text') {
+      // Fallback to flatpickr if native date input is not supported
+      import('https://cdn.jsdelivr.net/npm/flatpickr').then((flatpickr) => {
+        flatpickr.default(dateInput, {
+          dateFormat: "Y-m-d",
+          minDate: minDateString,
+          maxDate: maxDateString,
+          onChange: function(selectedDates, dateStr, instance) {
+            dateInput.value = dateStr
+            submitButton.disabled = false
+          }
+        })
+      })
+    }
   },
 }
 
