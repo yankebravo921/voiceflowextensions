@@ -985,6 +985,10 @@ export const DateTimeExtension = {
           position: absolute;
           padding: 6px;
           font: normal 8px sans-serif;
+          width: 100%;
+          height: 100%;
+          left: 0;
+          top: 0;
         }
         .meeting input {
           background: transparent;
@@ -995,6 +999,7 @@ export const DateTimeExtension = {
           outline: none;
           margin: 5px 0;
           width: 100%;
+          cursor: pointer;
         }
         .meeting input:focus {
           outline: none;
