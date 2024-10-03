@@ -957,35 +957,29 @@ export const DateTimeExtension = {
   render: ({ trace, element }) => {
     const formContainer = document.createElement('form')
 
-    // Get current date and set min/max dates for date picker
+    // Get current date and set min/max dates
     let currentDate = new Date()
     let minDate = new Date()
     minDate.setMonth(currentDate.getMonth() - 1)
     let maxDate = new Date()
     maxDate.setMonth(currentDate.getMonth() + 2)
 
-    // Convert to ISO string and remove time part
-    let minDateString = minDate.toISOString().slice(0, 10)
-    let maxDateString = maxDate.toISOString().slice(0, 10)
-
     formContainer.innerHTML = `
       <style>
-        label {
-          font-size: 0.8em;
-          color: #888;
+        .datetime-picker {
+          font-family: Arial, sans-serif;
         }
-        .meeting input {
-          background: transparent;
-          border: none;
-          padding: 2px;
-          border-bottom: 0.5px solid rgba(255, 0, 0, 0.5);
-          font: normal 14px sans-serif;
-          outline: none;
+        .datetime-picker select {
           margin: 5px 0;
-          width: 100%;
+          padding: 5px;
+          border: 1px solid #ccc;
+          border-radius: 4px;
         }
-        .meeting input:focus {
-          outline: none;
+        .datetime-picker input[type="time"] {
+          margin: 5px 0;
+          padding: 5px;
+          border: 1px solid #ccc;
+          border-radius: 4px;
         }
         .submit {
           background: linear-gradient(to right, #e12e2e, #f12e2e);
@@ -996,58 +990,97 @@ export const DateTimeExtension = {
           width: 100%;
           cursor: pointer;
           opacity: 0.3;
+          margin-top: 10px;
         }
         .submit:enabled {
           opacity: 1;
         }
       </style>
-      <label for="meeting-date">Select your date</label><br>
-      <div class="meeting">
-        <input type="text" id="meeting-date" name="meeting-date" placeholder="YYYY-MM-DD" />
+      <div class="datetime-picker">
+        <label for="year">Year:</label>
+        <select id="year" name="year"></select>
+        
+        <label for="month">Month:</label>
+        <select id="month" name="month"></select>
+        
+        <label for="day">Day:</label>
+        <select id="day" name="day"></select>
+        
+        <label for="time">Time:</label>
+        <input type="time" id="time" name="time" step="900" value="00:00">
       </div>
-      <label for="meeting-time">Select your time</label><br>
-      <div class="meeting">
-        <input type="time" id="meeting-time" name="meeting-time" step="900" value="00:00" />
-      </div><br>
-      <input type="submit" id="submit" class="submit" value="Submit" disabled="disabled">
+      <input type="submit" id="submit" class="submit" value="Submit" disabled>
     `
 
+    const yearSelect = formContainer.querySelector('#year')
+    const monthSelect = formContainer.querySelector('#month')
+    const daySelect = formContainer.querySelector('#day')
+    const timeInput = formContainer.querySelector('#time')
     const submitButton = formContainer.querySelector('#submit')
-    const dateInput = formContainer.querySelector('#meeting-date')
-    const timeInput = formContainer.querySelector('#meeting-time')
 
-    // Function to validate date
-    function validateDate(input) {
-      const dateRegex = /^\d{4}-\d{2}-\d{2}$/
-      if (!dateRegex.test(input.value)) return false
-      
-      const date = new Date(input.value)
-      return date >= new Date(minDateString) && date <= new Date(maxDateString)
+    // Populate year options
+    for (let year = minDate.getFullYear(); year <= maxDate.getFullYear(); year++) {
+      const option = document.createElement('option')
+      option.value = year
+      option.textContent = year
+      yearSelect.appendChild(option)
     }
 
-    // Enable submit button only when both date and time are selected and valid
-    function updateSubmitButton() {
-      if (validateDate(dateInput) && timeInput.value) {
-        submitButton.disabled = false
-      } else {
-        submitButton.disabled = true
+    // Populate month options
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+    months.forEach((month, index) => {
+      const option = document.createElement('option')
+      option.value = index + 1
+      option.textContent = month
+      monthSelect.appendChild(option)
+    })
+
+    // Function to update days based on selected year and month
+    function updateDays() {
+      const year = parseInt(yearSelect.value)
+      const month = parseInt(monthSelect.value) - 1
+      const daysInMonth = new Date(year, month + 1, 0).getDate()
+      
+      daySelect.innerHTML = ''
+      for (let day = 1; day <= daysInMonth; day++) {
+        const option = document.createElement('option')
+        option.value = day
+        option.textContent = day
+        daySelect.appendChild(option)
       }
     }
 
-    dateInput.addEventListener('input', updateSubmitButton)
+    // Set initial values and update days
+    yearSelect.value = currentDate.getFullYear()
+    monthSelect.value = currentDate.getMonth() + 1
+    updateDays()
+    daySelect.value = currentDate.getDate()
+
+    // Add event listeners
+    yearSelect.addEventListener('change', updateDays)
+    monthSelect.addEventListener('change', updateDays)
+
+    function updateSubmitButton() {
+      const selectedDate = new Date(yearSelect.value, monthSelect.value - 1, daySelect.value)
+      submitButton.disabled = !(selectedDate >= minDate && selectedDate <= maxDate && timeInput.value)
+    }
+
+    yearSelect.addEventListener('change', updateSubmitButton)
+    monthSelect.addEventListener('change', updateSubmitButton)
+    daySelect.addEventListener('change', updateSubmitButton)
     timeInput.addEventListener('input', updateSubmitButton)
 
     formContainer.addEventListener('submit', function (event) {
       event.preventDefault()
-      const date = dateInput.value
+      const year = yearSelect.value.padStart(4, '0')
+      const month = monthSelect.value.padStart(2, '0')
+      const day = daySelect.value.padStart(2, '0')
       const time = timeInput.value
 
-      // Combine date and time into a single dateTime string in ISO format
-      const dateTime = `${date}T${time}:00`
+      const dateTime = `${year}-${month}-${day}T${time}:00`
 
       console.log(`Selected dateTime: ${dateTime}`)
 
-      // Send the dateTime as one payload in the required format
       formContainer.querySelector('.submit').remove()
       window.voiceflow.chat.interact({
         type: 'complete',
@@ -1056,19 +1089,6 @@ export const DateTimeExtension = {
     })
 
     element.appendChild(formContainer)
-
-    // Load flatpickr for cross-platform date picking
-    const script = document.createElement('script')
-    script.src = 'https://cdn.jsdelivr.net/npm/flatpickr'
-    script.onload = function() {
-      flatpickr(dateInput, {
-        dateFormat: "Y-m-d",
-        minDate: minDateString,
-        maxDate: maxDateString,
-        onChange: updateSubmitButton
-      })
-    }
-    document.head.appendChild(script)
   },
 }
 
