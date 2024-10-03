@@ -533,85 +533,92 @@ export const FeedbackExtension = {
   match: ({ trace }) =>
     trace.type === 'ext_feedback' || trace.payload.name === 'ext_feedback',
   render: ({ trace, element }) => {
-    const feedbackContainer = document.createElement('form');
+    const feedbackContainer = document.createElement('div');
 
     feedbackContainer.innerHTML = `
       <style>
-        form {
-          background-color: white;
-          padding: 20px;
+        .feedback-container {
+          background-color: #ffffff;
+          padding: 16px;
           border-radius: 8px;
           box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-          max-width: 300px;
-          margin: 0 auto;
+          width: 100%;
+          box-sizing: border-box;
+          font-family: sans-serif;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
         }
         .feedback-title {
-          font-size: 18px;
-          font-weight: bold;
-          margin-bottom: 16px;
+          font-size: 16px; /* Increased font size */
+          font-weight: bold; /* Match submit button font weight */
+          margin-bottom: 12px;
           color: #333;
-          text-align: center;
+          text-align: center; /* Center align text */
         }
         .star-rating {
-          font-size: 32px;
+          font-size: 24px; /* Increased star size */
           color: #e0e0e0;
-          margin-bottom: 16px;
-          justify-content: center;
+          margin-bottom: 12px;
+          justify-content: center; /* Center align stars */
           display: flex;
         }
         .star-rating .star {
           display: inline-block;
-          margin: 0 8px;
-          cursor: pointer;
-          user-select: none;
+          margin: 0 8px; /* Add spacing between stars */
         }
         .star-rating .star.active {
           color: #ffd700;
         }
         textarea {
           width: 100%;
-          padding: 12px;
+          padding: 8px;
           margin: 8px 0;
-          border: 1px solid #e0e0e0;
-          border-radius: 10px;
+          border: 1px solid #e0e0e0; /* Set initial border color to light purple */
+          border-radius: 4px;
           font-size: 14px;
           box-sizing: border-box;
-          resize: none;
-          height: 80px;
-          font-family: inherit;
+          resize: none; /* Remove scrollbar */
+          height: 60px; /* Set fixed height */
+          font-family: inherit; /* Inherit font from container */
+        }
+        textarea:hover {
+          border-color: #6B4EFF; /* Change border color on hover */
         }
         .submit-btn {
-          background: linear-gradient(135deg, #8A2BE2, #6B4EFF);
+          background-color: linear-gradient(135deg, #6B4EFF, #8A2BE2);
           color: white;
-          padding: 10px;
+          padding: 8px 16px;
           border: none;
-          border-radius: 20px;
-          width: 100%;
+          border-radius: 4px;
           cursor: pointer;
-          font-size: 16px;
-          transition: opacity 0.3s;
-        }
-        .submit-btn:hover {
-          opacity: 0.9;
+          font-size: 14px;
+          font-weight: bold; /* Match title font weight */
+          width: 100%;
+          margin-top: 8px;
+          transition: background 0.3s ease;
         }
       </style>
-
-      <div class="feedback-title">Please give your feedback:</div>
-      <div class="star-rating" id="starRating">
-        <span class="star" data-value="1">★</span>
-        <span class="star" data-value="2">★</span>
-        <span class="star" data-value="3">★</span>
-        <span class="star" data-value="4">★</span>
-        <span class="star" data-value="5">★</span>
+      <div class="feedback-container">
+        <div class="feedback-title">Please give your feedback on our customer service:</div>
+        <div class="star-rating" id="starRating">
+          <span class="star" data-value="1">★</span>
+          <span class="star" data-value="2">★</span>
+          <span class="star" data-value="3">★</span>
+          <span class="star" data-value="4">★</span>
+          <span class="star" data-value="5">★</span>
+        </div>
+        <textarea id="feedbackText" placeholder="Share your experience with us..."></textarea>
+        <button class="submit-btn" id="submitFeedback">Submit Feedback</button>
       </div>
-      <textarea id="feedbackText" placeholder="Share your experience..."></textarea>
-      <button type="submit" class="submit-btn">Submit</button>
     `;
 
     let selectedRating = 0;
+
     const starRating = feedbackContainer.querySelector('#starRating');
     const stars = starRating.querySelectorAll('.star');
     const feedbackText = feedbackContainer.querySelector('#feedbackText');
+    const submitButton = feedbackContainer.querySelector('#submitFeedback');
 
     function updateStars(rating) {
       stars.forEach((star, index) => {
@@ -626,48 +633,35 @@ export const FeedbackExtension = {
       }
     });
 
-    feedbackContainer.addEventListener('submit', async (event) => {
-      event.preventDefault();
+    starRating.addEventListener('mouseover', (event) => {
+      if (event.target.classList.contains('star')) {
+        updateStars(parseInt(event.target.dataset.value));
+      }
+    });
 
+    starRating.addEventListener('mouseout', () => {
+      updateStars(selectedRating);
+    });
+
+    submitButton.addEventListener('click', () => {
       if (selectedRating === 0) {
         alert('Please select a rating before submitting.');
         return;
       }
 
       const feedback = {
-        feedbackRating: selectedRating,
-        feedbackComment: feedbackText.value.trim(),
+        rating: selectedRating,
+        comment: feedbackText.value.trim(),
       };
 
-      console.log('Submitting feedback:', feedback); // Debugging log
+      console.log('Feedback submitted:', feedback);
 
-      try {
-        await window.voiceflow.chat.interact({
-          type: 'complete',
-          payload: feedback,
-        });
+      window.voiceflow.chat.interact({
+        type: 'complete',
+        payload: feedback,
+      });
 
-        feedbackContainer.innerHTML = `
-  <div style="
-    text-align: center; 
-    font-size: 16px; 
-    padding: 10px; 
-    max-width: 200px; 
-    margin: 0 auto; 
-    background-color: #f9f9f9; 
-    border-radius: 8px; 
-    font-weight: bold;
-  ">
-    Thank you for your feedback! 😊
-  </div>
-`;
-
-
-
-      } catch (error) {
-        console.error('Error during feedback submission:', error); // Debugging log
-        alert('An error occurred while submitting your feedback. Please try again.');
-      }
+      feedbackContainer.innerHTML = '<p>Thank you for your feedback!</p>';
     });
 
     element.appendChild(feedbackContainer);
@@ -976,7 +970,7 @@ export const DateTimeExtension = {
           background: transparent;
           border: none;
           padding: 2px;
-          border-bottom: 0.5px solid rgba(128, 0, 128, 0.5); /* Purple color */
+          border-bottom: 0.5px solid rgba(255, 0, 0, 0.5); /* Red color */
           font: normal 14px sans-serif;
           outline: none;
           margin: 5px 0;
@@ -985,14 +979,14 @@ export const DateTimeExtension = {
           outline: none;
         }
         .submit {
-          background: linear-gradient(to right, #8e2de2, #4a00e0); /* purple gradient */
+          background: linear-gradient(to right, #e12e2e, #f12e2e); /* Red gradient */
           border: none;
           color: white;
           padding: 10px;
           border-radius: 5px;
           width: 100%;
           cursor: pointer;
-          opacity: 0.2;
+          opacity: 0.3;
         }
         .submit:enabled {
           opacity: 1; /* Make the button fully opaque when it's enabled */
@@ -1149,66 +1143,5 @@ export const MenuExtension = {
     });
 
     element.appendChild(menuContainer);
-  },
-}
-
-export const ThankYouCharacterExtension = {
-  name: 'ThankYouCharacter',
-  type: 'effect',
-  match: ({ trace }) =>
-    trace.type === 'ext_thank_you_character' || trace.payload.name === 'ext_thank_you_character',
-  effect: ({ trace }) => {
-    const canvas = document.querySelector('#character-canvas');
-    const ctx = canvas.getContext('2d');
-
-    const sprite = new Image();
-    sprite.src = 'thank_you_character_sprite.png.png.png'; // Use a pixel sprite sheet
-
-    const drawCharacter = (frame) => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas before drawing
-      const spriteWidth = 64; // Width of a single frame in your sprite sheet
-      const spriteHeight = 64; // Height of a single frame
-
-      // Draw character at different positions based on the frame number to animate
-      ctx.drawImage(sprite, frame * spriteWidth, 0, spriteWidth, spriteHeight, 100, 150, 64, 64);
-    };
-
-    const drawSpeechBubble = () => {
-      // Draw a simple speech bubble with pixel font
-      ctx.font = '20px "Press Start 2P"'; // Pixelated font from Google Fonts
-      ctx.fillStyle = '#fff'; // White background for text
-      ctx.fillText('Thank You!', 80, 100); // Display the message above the character
-    };
-
-    // Animation loop
-    let frame = 0;
-    const animateCharacter = () => {
-      frame = (frame + 1) % 4; // Cycle through 4 frames for a simple animation
-      drawCharacter(frame);
-    };
-
-    sprite.onload = () => {
-      // Start the animation
-      const animationInterval = setInterval(animateCharacter, 200); // Animate every 200ms
-
-      drawSpeechBubble();
-
-      // Confetti effect
-      const confettiCanvas = document.querySelector('#confetti-canvas');
-      var myConfetti = confetti.create(confettiCanvas, {
-        resize: true,
-        useWorker: true,
-      });
-      myConfetti({
-        particleCount: 200,
-        spread: 160,
-      });
-
-      // Stop animation and clear canvas after 3 seconds
-      setTimeout(() => {
-        clearInterval(animationInterval);
-        ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
-      }, 3000);
-    };
   },
 }
