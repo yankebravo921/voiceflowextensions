@@ -530,21 +530,39 @@ export const DateExtension = {
 
 export const ConfettiExtension = {
   name: 'Confetti',
-  type: 'effect',
-  match: ({ trace }) =>
-    trace.type === 'ext_confetti' || trace.payload.name === 'ext_confetti',
-  effect: ({ trace }) => {
-    const canvas = document.querySelector('#confetti-canvas')
-
-    var myConfetti = confetti.create(canvas, {
-      resize: true,
-      useWorker: true,
-    })
-    myConfetti({
-      particleCount: 200,
-      spread: 160,
-    })
+  type: 'effect',  // The type should be 'effect' to ensure it triggers correctly
+  match: (data) => {
+    console.log('Matching confetti action with data:', data);
+    // Ensure it matches either via type or the payload (as Voiceflow uses different ways to structure actions)
+    return data.type === 'ext_confetti' || (data.payload && data.payload.name === 'ext_confetti');
   },
+  effect: (data, runtime) => {
+    console.log('Confetti effect triggered', data);
+    
+    // Find the canvas
+    const canvas = document.querySelector('#confetti-canvas');
+    if (canvas) {
+      console.log('Canvas found');
+      
+      if (window.confetti) {
+        console.log('Confetti library found, triggering confetti effect');
+        
+        // Run the confetti effect
+        window.confetti.create(canvas, { resize: true })({
+          particleCount: 200,
+          spread: 160,
+          origin: { y: 0.6 },
+          colors: ['#ff1493', '#00ffff', '#ff4500'],  // Custom confetti colors
+        });
+      } else {
+        console.error('Confetti library not found on window');
+      }
+    } else {
+      console.error('Canvas for confetti not found');
+    }
+
+    return runtime.done(); // Ensure runtime ends properly
+  }
 }
 
 export const FeedbackExtension = {
