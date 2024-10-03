@@ -976,7 +976,7 @@ export const DateTimeExtension = {
           background: transparent;
           border: none;
           padding: 2px;
-          border-bottom: 0.5px solid rgba(255, 0, 0, 0.5); /* Red color */
+          border-bottom: 0.5px solid rgba(128, 0, 128, 0.5); /* Purple color */
           font: normal 14px sans-serif;
           outline: none;
           margin: 5px 0;
@@ -985,14 +985,14 @@ export const DateTimeExtension = {
           outline: none;
         }
         .submit {
-          background: linear-gradient(to right, #e12e2e, #f12e2e); /* Red gradient */
+          background: linear-gradient(to right, #8e2de2, #4a00e0); /* purple gradient */
           border: none;
           color: white;
           padding: 10px;
           border-radius: 5px;
           width: 100%;
           cursor: pointer;
-          opacity: 0.3;
+          opacity: 0.2;
         }
         .submit:enabled {
           opacity: 1; /* Make the button fully opaque when it's enabled */

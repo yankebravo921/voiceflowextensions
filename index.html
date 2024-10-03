@@ -1,97 +1,79 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chat Widget | Extensions Demo</title>
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-  <style>
-    body {
-      background-color: #f9f9f9;
-    }
-    #flat-chat {
-      width: 100vw;
-      height: 100vh;
-      position: absolute;
-      top: 0;
-      left: 0;
-    }
-    #character-canvas, #confetti-canvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      pointer-events: none;
-      z-index: 999;
-    }
-  </style>
-</head>
-<body>
-  <canvas id="character-canvas" width="400" height="400"></canvas>
-  <canvas id="confetti-canvas"></canvas>
-  <div id="flat-chat"></div>
-  <div id="voiceflow-chat-frame"></div>
-  <script type="module">
-    import {
-      DisableInputExtension,
-      VideoExtension,
-      TimerExtension,
-      FormExtension,
-      MapExtension,
-      FileUploadExtension,
-      KBUploadExtension,
-      DateExtension,
-      ConfettiExtension,
-      ThankYouCharacterExtension,
-      MatrixEffectExtension,
-      MultiSelectExtension,
-      DateTimeExtension,
-      MenuExtension,
-      FeedbackExtension,
-    } from '/extensions.js';
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Voiceglow with Voiceflow Extensions</title>
+    <style>
+      body {
+        background-color: #f9f9f9;
+      }
+      #confetti-canvas, #matrix-canvas {
+        position: fixed;
+        z-index: 999;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        pointer-events: none;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="confetti-canvas"></canvas>
+    <canvas id="matrix-canvas"></canvas>
+    <div id="voiceflow-chat-frame"></div>
+    
+    <script type="module">
+      import {
+        DisableInputExtension,
+        VideoExtension,
+        TimerExtension,
+        FormExtension,
+        MapExtension,
+        FileUploadExtension,
+        KBUploadExtension,
+        DateExtension,
+        ConfettiExtension,
+        MatrixEffectExtension,
+        MultiSelectExtension,
+        DateTimeExtension,
+        MenuExtension,
+        FeedbackExtension,
+      } from '/extensions.js'; // Make sure this path is correct
 
-    (function (d, t) {
-      var v = d.createElement(t),
-        s = d.getElementsByTagName(t)[0];
-      v.onload = function () {
-        window.voiceflow.chat.load({
-          verify: { projectID: '66bbb099127352649dbd7007' },
-          url: 'https://general-runtime.voiceflow.com',
-          versionID: 'production',
-          user: {
-            name: 'Demo User',
-          },
-          render: {
-            mode: 'overlay',
-          },
-          autostart: true,
-          allowDangerousHTML: true,
-          assistant: {
-            extensions: [
-              DisableInputExtension,
-              VideoExtension,
-              TimerExtension,
-              FormExtension,
-              MapExtension,
-              FileUploadExtension,
-              KBUploadExtension,
-              DateExtension,
-              ConfettiExtension,
-              ThankYouCharacterExtension,
-              MatrixEffectExtension,
-              MultiSelectExtension,
-              DateTimeExtension,
-              MenuExtension,
-              FeedbackExtension,
-            ],
-          },
-        });
-      };
-      v.src = 'https://cdn.voiceflow.com/widget/bundle.mjs';
-      v.type = 'text/javascript';
-      s.parentNode.insertBefore(v, s);
-    })(document, 'script');
-  </script>
-</body>
+      // Voiceglow configuration
+      (function () {
+        window.VG_CONFIG = {
+          ID: "dvpmsjrjsaz3d7pl", // Replace with your Voiceglow agent ID
+          region: "eu", // Choose 'eu' or 'na' based on your account region
+          render: "bottom-right", // 'popup' or 'full-width'
+          stylesheets: [
+            "https://storage.googleapis.com/voiceglow-eu/vg_dev_build/styles.css",
+          ],
+          extensions: [
+            DisableInputExtension,
+            VideoExtension,
+            TimerExtension,
+            FormExtension,
+            MapExtension,
+            FileUploadExtension,
+            KBUploadExtension,
+            DateExtension,
+            ConfettiExtension,
+            MatrixEffectExtension,
+            MultiSelectExtension,
+            DateTimeExtension,
+            MenuExtension,
+            FeedbackExtension,
+          ], // Add all your Voiceflow extensions here
+        };
+
+        var VG_SCRIPT = document.createElement("script");
+        VG_SCRIPT.src = "https://storage.googleapis.com/voiceglow-eu/vg_dev_build/vg_bundle.js";
+        VG_SCRIPT.defer = true;
+        document.body.appendChild(VG_SCRIPT);
+      })();
+    </script>
+  </body>
 </html>
