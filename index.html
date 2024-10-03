@@ -7,15 +7,21 @@
     <style>
       body {
         background-color: #f9f9f9;
+        margin: 0;
+        padding: 0;
       }
       #confetti-canvas, #matrix-canvas {
         position: fixed;
-        z-index: 999;
+        z-index: 9999; /* Increased z-index */
         top: 0;
         left: 0;
         width: 100vw;
         height: 100vh;
         pointer-events: none;
+      }
+      #voiceflow-chat-frame {
+        position: relative;
+        z-index: 1000; /* Lower than canvas, but above other content */
       }
     </style>
   </head>
@@ -23,7 +29,8 @@
     <canvas id="confetti-canvas"></canvas>
     <canvas id="matrix-canvas"></canvas>
     <div id="voiceflow-chat-frame"></div>
-    
+   
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <script type="module">
       import {
         DisableInputExtension,
@@ -40,14 +47,14 @@
         DateTimeExtension,
         MenuExtension,
         FeedbackExtension,
-      } from './extensions.js'; // Make sure this path is correct
+      } from './extensions.js';
 
       // Voiceglow configuration
       (function () {
         window.VG_CONFIG = {
-          ID: "dvpmsjrjsaz3d7pl", // Replace with your Voiceglow agent ID
-          region: "eu", // Choose 'eu' or 'na' based on your account region
-          render: "bottom-right", // 'popup' or 'full-width'
+          ID: "dvpmsjrjsaz3d7pl",
+          region: "eu",
+          render: "bottom-right",
           stylesheets: [
             "https://storage.googleapis.com/voiceglow-eu/vg_dev_build/styles.css",
           ],
@@ -66,9 +73,8 @@
             DateTimeExtension,
             MenuExtension,
             FeedbackExtension,
-          ], // Add all your Voiceflow extensions here
+          ],
         };
-
         var VG_SCRIPT = document.createElement("script");
         VG_SCRIPT.src = "https://storage.googleapis.com/voiceglow-eu/vg_dev_build/vg_bundle.js";
         VG_SCRIPT.defer = true;
