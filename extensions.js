@@ -100,16 +100,26 @@ export const FormExtension = {
   match: ({ trace }) =>
     trace.type === 'ext_form' || trace.payload.name === 'ext_form',
   render: ({ trace, element }) => {
-    const formContainer = document.createElement('form')
+    // Create a container for the form
+    const formWrapper = document.createElement('div');
+    formWrapper.classList.add('form-container'); // Optional: add a class for further styling
+
+    // Create the form
+    const formContainer = document.createElement('form');
     
     formContainer.innerHTML = `
       <style>
+        .form-container {
+          position: relative; /* Allow absolute positioning for the close button */
+        }
         form {
           background-color: white;
           padding: 20px;
           border-radius: 8px;
           box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
           max-width: 300px;
+          max-height: 400px; /* Limit the height */
+          overflow-y: auto; /* Allow scrolling if content exceeds max height */
           margin: 0 auto;
         }
         label {
@@ -141,6 +151,15 @@ export const FormExtension = {
         .submit:hover {
           opacity: 0.9;
         }
+        .close-button {
+          position: absolute; /* Positioning it at the top-right */
+          top: 10px;
+          right: 10px;
+          border: none;
+          background: transparent;
+          font-size: 18px;
+          cursor: pointer;
+        }
       </style>
       
       <label for="name">Name</label>
@@ -153,28 +172,45 @@ export const FormExtension = {
       <input type="tel" id="phone" name="phone" required>
       
       <button type="submit" class="submit">Submit</button>
-    `
+    `;
     
+    // Add the close button
+    const closeButton = document.createElement('button');
+    closeButton.textContent = 'X'; // Using "X" for close icon
+    closeButton.className = 'close-button';
+    closeButton.addEventListener('click', () => {
+      element.removeChild(formWrapper); // Remove the form when closed
+      window.voiceflow.chat.showInput(); // Show the input when form is closed
+    });
+
+    // Add the event listener for form submission
     formContainer.addEventListener('submit', function (event) {
-      event.preventDefault()
+      event.preventDefault();
       
-      const name = formContainer.querySelector('#name')
-      const email = formContainer.querySelector('#email')
-      const phone = formContainer.querySelector('#phone')
+      const name = formContainer.querySelector('#name');
+      const email = formContainer.querySelector('#email');
+      const phone = formContainer.querySelector('#phone');
       
       if (!name.checkValidity() || !email.checkValidity() || !phone.checkValidity()) {
-        return
+        return;
       }
       
-      formContainer.querySelector('.submit').remove()
+      formContainer.querySelector('.submit').remove();
       
       window.voiceflow.chat.interact({
         type: 'complete',
         payload: { name: name.value, email: email.value, phone: phone.value },
-      })
-    })
-    
-    element.appendChild(formContainer)
+      });
+
+      // Optionally remove the form after submission
+      element.removeChild(formWrapper); // Close the form after submission
+      window.voiceflow.chat.showInput(); // Show the input again after closing the form
+    });
+
+    // Append the form to the wrapper and the wrapper to the element
+    formWrapper.appendChild(closeButton); // Add close button to formWrapper
+    formWrapper.appendChild(formContainer); // Add the form to the wrapper
+    element.appendChild(formWrapper); // Add the wrapper to the chat widget
   },
 }
 
