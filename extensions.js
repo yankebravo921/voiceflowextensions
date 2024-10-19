@@ -102,7 +102,7 @@ export const FormExtension = {
   render: ({ trace, element }) => {
     // Create a container for the form
     const formWrapper = document.createElement('div');
-    formWrapper.classList.add('form-container'); // Optional: add a class for further styling
+    formWrapper.classList.add('form-container'); 
 
     // Create the form
     const formContainer = document.createElement('form');
@@ -110,54 +110,54 @@ export const FormExtension = {
     formContainer.innerHTML = `
       <style>
         .form-container {
-          position: relative; /* Allow absolute positioning for the close button */
+          position: relative; /* Position relative for close button */
         }
         form {
           background-color: white;
-          padding: 20px;
+          padding: 10px; /* Reduced padding */
           border-radius: 8px;
-          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-          max-width: 300px;
-          max-height: 400px; /* Limit the height */
-          overflow-y: auto; /* Allow scrolling if content exceeds max height */
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Reduced shadow for compact look */
+          max-width: 240px; /* Reduced width */
+          max-height: 280px; /* Reduced height */
+          overflow-y: auto; /* Allow scrolling if needed */
           margin: 0 auto;
         }
         label {
           display: block;
-          margin-bottom: 5px;
-          font-size: 14px;
+          margin-bottom: 3px; /* Reduced margin for labels */
+          font-size: 12px; /* Smaller font size */
           color: #333;
         }
         input[type="text"], input[type="email"], input[type="tel"] {
           width: 100%;
-          padding: 10px;
-          margin-bottom: 15px;
+          padding: 6px; /* Reduced padding */
+          margin-bottom: 10px; /* Reduced margin */
           border: 1px solid #ddd;
-          border-radius: 20px;
+          border-radius: 12px; /* More compact radius */
           box-sizing: border-box;
-          font-size: 14px;
+          font-size: 12px; /* Smaller font */
         }
         .submit {
           background: linear-gradient(135deg, #8A2BE2, #6B4EFF);
           color: white;
-          padding: 10px;
+          padding: 8px; /* Reduced padding */
           border: none;
-          border-radius: 20px;
+          border-radius: 12px;
           width: 100%;
           cursor: pointer;
-          font-size: 16px;
+          font-size: 14px; /* Smaller font */
           transition: opacity 0.3s;
         }
         .submit:hover {
           opacity: 0.9;
         }
         .close-button {
-          position: absolute; /* Positioning it at the top-right */
-          top: 10px;
-          right: 10px;
+          position: absolute;
+          top: 5px; /* Adjusted for compact size */
+          right: 5px;
           border: none;
           background: transparent;
-          font-size: 18px;
+          font-size: 14px; /* Smaller font size for the close button */
           cursor: pointer;
         }
       </style>
@@ -176,11 +176,11 @@ export const FormExtension = {
     
     // Add the close button
     const closeButton = document.createElement('button');
-    closeButton.textContent = 'X'; // Using "X" for close icon
+    closeButton.textContent = 'X';
     closeButton.className = 'close-button';
     closeButton.addEventListener('click', () => {
-      element.removeChild(formWrapper); // Remove the form when closed
-      window.voiceflow.chat.showInput(); // Show the input when form is closed
+      element.removeChild(formWrapper);
+      window.voiceflow.chat.showInput();
     });
 
     // Add the event listener for form submission
@@ -202,15 +202,14 @@ export const FormExtension = {
         payload: { name: name.value, email: email.value, phone: phone.value },
       });
 
-      // Optionally remove the form after submission
       element.removeChild(formWrapper); // Close the form after submission
       window.voiceflow.chat.showInput(); // Show the input again after closing the form
     });
 
     // Append the form to the wrapper and the wrapper to the element
-    formWrapper.appendChild(closeButton); // Add close button to formWrapper
-    formWrapper.appendChild(formContainer); // Add the form to the wrapper
-    element.appendChild(formWrapper); // Add the wrapper to the chat widget
+    formWrapper.appendChild(closeButton); 
+    formWrapper.appendChild(formContainer); 
+    element.appendChild(formWrapper); 
   },
 }
 
